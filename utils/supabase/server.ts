@@ -16,27 +16,31 @@ export const createClient = () => {
     {
       cookies: {
         // The get method is used to retrieve a cookie by its name
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        get: async (name: string) => {
+          const cookieStore = await cookies(); // Get the cookies object
+          return cookieStore.get(name)?.value || null;
         },
+        
         // The set method is used to set a cookie with a given name, value, and options
-        set(name: string, value: string, options: CookieOptions) {
+        set: async (name: string, value: string, options: CookieOptions) => {
           try {
+            const cookieStore = await cookies(); // <--- this line added
             cookieStore.set({ name, value, ...options });
           } catch (error) {
-            // If the set method is called from a Server Component, an error may occur
-            // This can be ignored if there is middleware refreshing user sessions
+            // Middleware will usually refresh session anyway, so you can safely ignore this in server components
           }
         },
+        
         // The remove method is used to delete a cookie by its name
-        remove(name: string, options: CookieOptions) {
+        remove: async (name: string, options: CookieOptions) => {
           try {
+            const cookieStore = await cookies(); // <-- await it!
             cookieStore.set({ name, value: '', ...options });
           } catch (error) {
-            // If the remove method is called from a Server Component, an error may occur
-            // This can be ignored if there is middleware refreshing user sessions
+            // Safe to ignore in server components; sessions will refresh via middleware
           }
         }
+        
       }
     }
   );

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Vercel settings
+.vercel/
+
+# Supabase local dev artifacts
+supabase/.temp/
+supabase/.output/
+.supabase/
+*.sqlite
+*.db
+
+# Environment files (contain secrets)
+.env
+.env.local
+.env.*
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Turbo repo cache
+.turbo/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Others
+*.swp
