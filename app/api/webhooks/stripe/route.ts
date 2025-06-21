@@ -22,9 +22,12 @@ const relevantEvents = new Set([
 ]);
 
 export async function POST(req: Request) {
+  console.log('✅ Webhook route was hit');
   const body = await req.text();
   const sig = req.headers.get('stripe-signature') as string;
+  console.log('🧪 Signature Header:', sig);
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  console.log('🧪 Webhook Secret:', webhookSecret);
   let event: Stripe.Event;
 
   try {
