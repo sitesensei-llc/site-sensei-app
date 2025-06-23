@@ -15,8 +15,8 @@ export async function redirectToPath(path: string) {
   return redirect(path);
 }
 
-export async function SignOut(formData: FormData) {
-  const pathName = String(formData.get('pathName')).trim();
+export async function SignOut(formData: FormData | Record<string, any>) {
+  const pathName = String((formData as Record<string, any>)['pathName']).trim();
 
   const supabase = createClient();
   const { error } = await supabase.auth.signOut();
@@ -33,7 +33,7 @@ export async function SignOut(formData: FormData) {
 }
 
 export async function signInWithEmail(formData: FormData) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const callbackURL = getURL('/auth/callback');
 
   const email = String(formData.get('email')).trim();
@@ -131,16 +131,17 @@ export async function requestPasswordUpdate(formData: FormData) {
   return redirectPath;
 }
 
-export async function signInWithPassword(formData: FormData) {
-  const cookieStore = cookies();
-  const email = String(formData.get('email')).trim();
-  const password = String(formData.get('password')).trim();
+export async function signInWithPassword(formData: FormData | Record<string, any>) {
+  const cookieStore = await cookies();
+  const email = String((formData as Record<string, any>)['email']).trim();
+  const password = String((formData as Record<string, any>)['password']).trim();
+
   let redirectPath: string;
 
   const supabase = createClient();
   const { error, data } = await supabase.auth.signInWithPassword({
     email,
-    password
+    password,
   });
 
   if (error) {

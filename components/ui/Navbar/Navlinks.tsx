@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { SignOut } from '@/utils/auth-helpers/server';
-import { handleRequest } from '@/utils/auth-helpers/client';
-import Logo from '@/components/icons/Logo';
-import { usePathname, useRouter } from 'next/navigation';
-import { getRedirectMethod } from '@/utils/auth-helpers/settings';
-import s from './Navbar.module.css';
+import Link from "next/link";
+import { SignOut } from "@/utils/auth-helpers/server";
+import { handleRequest } from "@/utils/auth-helpers/client";
+import Logo from "@/components/icons/Logo";
+import { usePathname, useRouter } from "next/navigation";
+import { getRedirectMethod } from "@/utils/auth-helpers/settings";
+import s from "./Navbar.module.css";
 
 interface NavlinksProps {
   user?: any;
 }
 
 export default function Navlinks({ user }: NavlinksProps) {
-  const router = getRedirectMethod() === 'client' ? useRouter() : null;
+  const router = getRedirectMethod() === "client" ? useRouter() : null;
+  const pathName = usePathname(); // ✅ moved out of JSX
 
   return (
     <div className="relative flex flex-row justify-between py-4 align-center md:py-6">
@@ -35,7 +36,7 @@ export default function Navlinks({ user }: NavlinksProps) {
       <div className="flex justify-end space-x-8">
         {user ? (
           <form onSubmit={(e) => handleRequest(e, SignOut, router)}>
-            <input type="hidden" name="pathName" value={usePathname()} />
+            <input type="hidden" name="pathName" value={pathName} />
             <button type="submit" className={s.link}>
               Sign out
             </button>

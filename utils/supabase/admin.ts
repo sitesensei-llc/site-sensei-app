@@ -39,7 +39,8 @@ const upsertPriceRecord = async (
   price: Stripe.Price,
   retryCount = 0,
   maxRetries = 3
-) => {
+): Promise<void> => {
+
   const priceData: Price = {
     id: price.id,
     product_id: typeof price.product === 'string' ? price.product : '',
@@ -56,21 +57,22 @@ const upsertPriceRecord = async (
     .from('prices')
     .upsert([priceData]);
 
-  if (upsertError?.message.includes('foreign key constraint')) {
+  if (upsertError?.message?.includes?.('foreign key constraint')) {
     if (retryCount < maxRetries) {
-      console.log(`Retry attempt ${retryCount + 1} for price ID: ${price.id}`);
+      console.log(`🔁 Retry attempt ${retryCount + 1} for price ID: ${price.id}`);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await upsertPriceRecord(price, retryCount + 1, maxRetries);
+      return upsertPriceRecord(price, retryCount + 1, maxRetries);
     } else {
-      throw new Error(
-        `Price insert/update failed after ${maxRetries} retries: ${upsertError.message}`
-      );
+      throw new Error(`🛑 Max retries reached for price ID: ${price.id}`);
     }
-  } else if (upsertError) {
-    throw new Error(`Price insert/update failed: ${upsertError.message}`);
-  } else {
-    console.log(`Price inserted/updated: ${price.id}`);
   }
+
+  if (upsertError) {
+    console.log("❌ Upsert Error:", upsertError);
+    throw new Error(`Price insert/update failed: ${upsertError.message}`);
+  }
+
+  console.log(`✅ Price inserted/updated: ${price.id}`);
 };
 
 const deleteProductRecord = async (product: Stripe.Product) => {
@@ -88,7 +90,8 @@ const deletePriceRecord = async (price: Stripe.Price) => {
     .from('prices')
     .delete()
     .eq('id', price.id);
-  if (deletionError) throw new Error(`Price deletion failed: ${deletionError.message}`);
+  if (deletionError)
+    throw new Error(`Price deletion failed: ${deletionError.message}`);
   console.log(`Price deleted: ${price.id}`);
 };
 
@@ -228,7 +231,7 @@ const manageSubscriptionStatusChange = async (
   const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
     expand: ['default_payment_method']
   });
-  // Upsert the latest status of the subscription object.
+
   const subscriptionData: TablesInsert<'subscriptions'> = {
     id: subscription.id,
     user_id: uuid,
